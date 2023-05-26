@@ -10,14 +10,14 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class BattleWin {
 
-    private Player p;
-    ArrayList<Integer> wins;
+    private Player player;
+    ArrayList<Long> wins;
 
     public BattleWin(){
         wins = new ArrayList<>();
     }
 
-    public void addWin(int stat){
+    public void addWin(long stat){
         wins.add(stat);
     }
 }

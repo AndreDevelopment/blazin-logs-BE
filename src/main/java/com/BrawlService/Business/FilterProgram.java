@@ -4,12 +4,14 @@ package com.BrawlService.Business;
 import com.BrawlService.Entity.BrawlEntity.Brawler;
 import com.BrawlService.Entity.BrawlEntity.Log;
 import com.BrawlService.Entity.BrawlEntity.Player;
+import com.BrawlService.Entity.StatEntity.BattleWin;
 import com.BrawlService.Service.BrawlRequest;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -130,8 +132,9 @@ public class FilterProgram {
 
         });
     }
-    private HashMap<String, ArrayList<Long>> filterWins(HashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList){
-        HashMap<String, ArrayList<Long>> playerVictories = new HashMap<>();
+    private ArrayList<BattleWin> filterWins(HashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList){
+       ArrayList<BattleWin>playerVictories = new ArrayList<>();
+
         for (Player p: clubList) {
             long wins3v3 = playerLogs.get(p.getName()).stream().filter(log -> log.getBattle().getResult() != null
                     && log.getBattle().getResult().equals("victory")
@@ -143,24 +146,20 @@ public class FilterProgram {
                     && log.getBattle().getMode().equals("duels")).count();
 
             //An ArrayList containing different win stats
-            ArrayList<Long> temp = new ArrayList<>();
-            temp.add(wins3v3);
-            temp.add(winsSolo);
-            temp.add(wins1v1);
+            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1))));
 
-            playerVictories.put(p.getName(), temp);
         }
         return  playerVictories;
     }
 
-    private  void printVictoryResults(HashMap<String,ArrayList<Long>> playerVictories){
+    private  void printVictoryResults(ArrayList<BattleWin> playerVictories){
         //25 is the max amount of battles pulled per Player
-        playerVictories.forEach((key,list)->{
-            double winRate = (double) (list.get(0) + list.get(1) + list.get(2)) / 25;
-            System.out.println(Colour.ANSI_BLUE + key
-                    + Colour.ANSI_PURPLE + " | 3v3 victories: " + list.get(0)
-                    + Colour.ANSI_GREEN + " | Solo victories: " + list.get(1)
-                    + Colour.ANSI_CYAN + " | Duels: " + list.get(2)
+        playerVictories.forEach((win)->{
+            double winRate = (double) (win.getWins().get(0) + win.getWins().get(1) + win.getWins().get(2)) / 25;
+            System.out.println(Colour.ANSI_BLUE + win.getPlayer().getName()
+                    + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
+                    + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
+                    + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
                     + Colour.ANSI_YELLOW + " | W/R: " + winRate);
         });
 
