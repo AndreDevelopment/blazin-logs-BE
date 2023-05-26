@@ -63,8 +63,8 @@ public class FilterProgram {
 
     }
 
-    public  void getClubVictories(String clubTag)  {
-        long startTime = System.currentTimeMillis();
+    public  ArrayList<BattleWin> getClubVictories(String clubTag)  {
+
 
         BrawlRequest req = new BrawlRequest();
         HashMap<String,ArrayList<Log>> playerLogs = new HashMap<>();
@@ -72,11 +72,13 @@ public class FilterProgram {
 
         getClubBattleLog(playerLogs,clubList,req);
 
-        //FILTERING WINS
-        printVictoryResults(filterWins(playerLogs,clubList));
 
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time taken " +((endTime-startTime)/1000)+"s");
+        ArrayList<BattleWin> winners = filterWins(playerLogs,clubList);
+        printVictoryResults(winners);
+        //FILTERING WINS
+       return winners;
+
+
     }
 
     private void filterBrawlerCount(HashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList, HashMap<String, Integer> brawlerPickRate){
