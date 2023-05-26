@@ -1,4 +1,4 @@
-package com.helper;
+package com.BrawlService.Entity;
 
 /*
  * Created by: Andre D'Souza

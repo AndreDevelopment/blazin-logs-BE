@@ -1,10 +1,11 @@
-package com.programs;
+package com.BrawlService.Business;
 
-import com.business.Colour;
-import com.helper.Brawler;
-import com.helper.Log;
-import com.helper.Player;
-import com.services.BrawlRequest;
+
+import com.BrawlService.Entity.Brawler;
+import com.BrawlService.Entity.Log;
+import com.BrawlService.Entity.Player;
+import com.BrawlService.Service.BrawlRequest;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;

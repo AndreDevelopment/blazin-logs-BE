@@ -1,4 +1,4 @@
-package com.services;
+package com.BrawlService.Service;
 
 import java.net.URI;
 import java.net.http.HttpClient;

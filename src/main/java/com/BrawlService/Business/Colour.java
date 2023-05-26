@@ -1,4 +1,4 @@
-package com.business;
+package com.BrawlService.Business;
 
 public class Colour {
 
