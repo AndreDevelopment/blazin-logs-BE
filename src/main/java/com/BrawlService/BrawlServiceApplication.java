@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 *
 * Player tag: #R2Y08YC8
 * Club tag: #VV9PVYYO
-*
+*TODO: Return List of battlewins (in  FilterPrograms) so I can store them in Mongo
 * */
 @SpringBootApplication
 public class BrawlServiceApplication {
