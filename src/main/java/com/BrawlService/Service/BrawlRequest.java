@@ -1,7 +1,7 @@
 package com.BrawlService.Service;
 
 import com.BrawlService.Business.JSONParser;
-import com.BrawlService.Entity.*;
+import com.BrawlService.Entity.BrawlEntity.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.json.JSONArray;
 import org.json.JSONObject;

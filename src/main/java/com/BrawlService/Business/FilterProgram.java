@@ -1,9 +1,9 @@
 package com.BrawlService.Business;
 
 
-import com.BrawlService.Entity.Brawler;
-import com.BrawlService.Entity.Log;
-import com.BrawlService.Entity.Player;
+import com.BrawlService.Entity.BrawlEntity.Brawler;
+import com.BrawlService.Entity.BrawlEntity.Log;
+import com.BrawlService.Entity.BrawlEntity.Player;
 import com.BrawlService.Service.BrawlRequest;
 
 

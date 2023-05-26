@@ -1,4 +1,4 @@
-package com.BrawlService.Entity;
+package com.BrawlService.Entity.BrawlEntity;
 
 /*
  * Created by: Andre D'Souza

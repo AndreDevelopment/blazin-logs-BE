@@ -1,5 +1,6 @@
-package com.BrawlService.Entity;
+package com.BrawlService.Entity.BrawlEntity;
 
+import com.BrawlService.Entity.BrawlEntity.Event;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
