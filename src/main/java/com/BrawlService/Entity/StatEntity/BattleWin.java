@@ -15,6 +15,7 @@ public class BattleWin {
     @Id
     private String _id;
 
+    private String battleTime;
     private Player player;
     ArrayList<Long> wins;
 
@@ -22,9 +23,10 @@ public class BattleWin {
         wins = new ArrayList<>();
     }
 
-    public  BattleWin(Player player, ArrayList<Long> wins) {
+    public  BattleWin(Player player, ArrayList<Long> wins,String battleTime) {
         this.player = player;
         this.wins = wins;
+        this.battleTime = battleTime;
     }
 
     public void addWin(long stat){

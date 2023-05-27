@@ -137,18 +137,29 @@ public class FilterProgram {
     private ArrayList<BattleWin> filterWins(HashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
 
+
         for (Player p: clubList) {
-            long wins3v3 = playerLogs.get(p.getName()).stream().filter(log -> log.getBattle().getResult() != null
-                    && log.getBattle().getResult().equals("victory")
-                    && !log.getBattle().getMode().equals("duels")).count();
-            long winsSolo = playerLogs.get(p.getName()).stream().filter(log -> log.getBattle().getRank() != 0
-                    && log.getBattle().getRank() < 5).count();
-            long wins1v1 = playerLogs.get(p.getName()).stream().filter(log -> log.getBattle().getResult() != null
-                    && log.getBattle().getResult().equals("victory")
-                    && log.getBattle().getMode().equals("duels")).count();
+
+
+            long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0;
+            for (Log l : playerLogs.get(p.getName())){
+                if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
+                    if (l.getBattle().getMode().equals("duels")){
+                        wins1v1 ++;
+                    }else {
+                        wins3v3++;
+                    }
+                }
+                if (l.getBattle().getRank() < 5 &&l.getBattle().getMode().equals("soloShowdown")){
+                    winsSolo++;
+                }
+                totalBattles++;
+            }
 
             //An ArrayList containing different win stats
-            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1))));
+            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,totalBattles)),
+                    playerLogs.get(p.getName()).get(0).getBattleTime()
+                    ));
 
         }
         return  playerVictories;

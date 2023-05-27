@@ -16,11 +16,11 @@ public class BattleWinController {
     @Autowired
     BattleWinService service;
 
-    @GetMapping("/wins")
-    public void insertWins(){
-        FilterProgram fp = new FilterProgram();
-        service.saveBattleHistory(fp.getClubVictories("#VV9PVYYO"));
-    }
+//    @GetMapping("/wins")
+//    public void insertWins(){
+//        FilterProgram fp = new FilterProgram();
+//        service.saveBattleHistory(fp.getClubVictories("#VV9PVYYO"));
+//    }
 
     @GetMapping("/fetch")
     public String showWins(){
