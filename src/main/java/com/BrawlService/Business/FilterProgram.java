@@ -138,9 +138,8 @@ public class FilterProgram {
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
 
 
+       //Loop through each players log, count up their wins and store those stats
         for (Player p: clubList) {
-
-
             long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0;
             for (Log l : playerLogs.get(p.getName())){
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
