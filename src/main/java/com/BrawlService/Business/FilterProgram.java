@@ -63,7 +63,7 @@ public class FilterProgram {
 
     }
 
-    public  ArrayList<BattleWin> getClubVictories(String clubTag)  {
+    public  ArrayList<BattleWin> getClubVictories(String clubTag,List<BattleWin> oldWinList)  {
 
 
         BrawlRequest req = new BrawlRequest();
@@ -72,76 +72,32 @@ public class FilterProgram {
 
         getClubBattleLog(playerLogs,clubList,req);
 
-
-        ArrayList<BattleWin> winners = filterWins(playerLogs,clubList);
-        printVictoryResults(winners);
         //FILTERING WINS
-       return winners;
+       return filterWins(playerLogs,clubList,oldWinList);
 
 
     }
 
-    private void filterBrawlerCount(HashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList, HashMap<String, Integer> brawlerPickRate){
 
-        playerLogs.forEach((key,list)->{
-
-            Player p =  clubList.stream().filter(player -> player.getName().equals(key)).findFirst().orElse(new Player("no player"));
-            Brawler b;
-
-            for (Log l : list) {
-
-                //3v3 Battles : Identifying which brawler the intended club member played
-                if (!l.getBattle().getTeams().isEmpty()){
-                    /*
-                    * 1. Find which team contains intended player
-                    * 2. Pull out the Player object from the team containing the Player (p)
-                    * 3. Set b equal to the return value of which Brawler the player opted for
-                    * */
-                    b =  l.getBattle().getTeams()
-                            .stream().filter(team->team.contains(p)).findFirst().orElse(new ArrayList<>())
-                            .stream().filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
-                            .getBrawler();
-
-                }
-                //soloShowdown or bossFight : Identifying which brawler the intended club member played
-                else if (!l.getBattle().getPlayers().isEmpty()&& !l.getBattle().getMode().equals("duels")){
-                    /*
-                    * 1. Pull out the Player p that belongs to the clubMemberList
-                    * 2. Identify their Brawler selection and set b.
-                    * */
-                    b = l.getBattle().getPlayers().stream()
-                            .filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
-                            .getBrawler();
-
-                }
-                //Duels : Identifying which brawler the intended club member played
-                else {
-                    /*
-                     * 1. Pull out the Player p that belongs to the clubMemberList
-                     * 2. Since duels contains a selection of 3 brawlers, I will increase the count of each one
-                     * */
-                    l.getBattle().getPlayers()
-                            .stream().filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
-                            .getBrawlers()
-                            .forEach(brawler -> brawlerPickRate.put(brawler.getName(), brawlerPickRate.get(brawler.getName()) + 1));
-                    b=null;
-                }
-
-                if(b!=null)
-                    brawlerPickRate.put(b.getName(),brawlerPickRate.get(b.getName())+1);
-
-            }//Log
-
-        });
-    }
-    private ArrayList<BattleWin> filterWins(HashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList){
+    private ArrayList<BattleWin> filterWins(HashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
-
 
        //Loop through each players log, count up their wins and store those stats
         for (Player p: clubList) {
+
             long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0;
+
+            //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
+            String battleTime = oldWinList.stream()
+                    .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
+                    .findFirst().orElse(new BattleWin()).getBattleTime();
+
+            //String battleTime = oldWinList.stream().filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag())).findFirst().orElse(new BattleWin()).getBattleTime();
             for (Log l : playerLogs.get(p.getName())){
+
+                if(l.getBattleTime().equals(battleTime))
+                    break;
+
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
                     if (l.getBattle().getMode().equals("duels")){
                         wins1v1 ++;
@@ -157,8 +113,7 @@ public class FilterProgram {
 
             //An ArrayList containing different win stats
             playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,totalBattles)),
-                    playerLogs.get(p.getName()).get(0).getBattleTime()
-                    ));
+                    playerLogs.get(p.getName()).get(0).getBattleTime()));
 
         }
         return  playerVictories;
@@ -188,5 +143,60 @@ public class FilterProgram {
             executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
+    }
+
+
+    private void filterBrawlerCount(HashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList, HashMap<String, Integer> brawlerPickRate){
+
+        playerLogs.forEach((key,list)->{
+
+            Player p =  clubList.stream().filter(player -> player.getName().equals(key)).findFirst().orElse(new Player("no player"));
+            Brawler b;
+
+            for (Log l : list) {
+
+                //3v3 Battles : Identifying which brawler the intended club member played
+                if (!l.getBattle().getTeams().isEmpty()){
+                    /*
+                     * 1. Find which team contains intended player
+                     * 2. Pull out the Player object from the team containing the Player (p)
+                     * 3. Set b equal to the return value of which Brawler the player opted for
+                     * */
+                    b =  l.getBattle().getTeams()
+                            .stream().filter(team->team.contains(p)).findFirst().orElse(new ArrayList<>())
+                            .stream().filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
+                            .getBrawler();
+
+                }
+                //soloShowdown or bossFight : Identifying which brawler the intended club member played
+                else if (!l.getBattle().getPlayers().isEmpty()&& !l.getBattle().getMode().equals("duels")){
+                    /*
+                     * 1. Pull out the Player p that belongs to the clubMemberList
+                     * 2. Identify their Brawler selection and set b.
+                     * */
+                    b = l.getBattle().getPlayers().stream()
+                            .filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
+                            .getBrawler();
+
+                }
+                //Duels : Identifying which brawler the intended club member played
+                else {
+                    /*
+                     * 1. Pull out the Player p that belongs to the clubMemberList
+                     * 2. Since duels contains a selection of 3 brawlers, I will increase the count of each one
+                     * */
+                    l.getBattle().getPlayers()
+                            .stream().filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
+                            .getBrawlers()
+                            .forEach(brawler -> brawlerPickRate.put(brawler.getName(), brawlerPickRate.get(brawler.getName()) + 1));
+                    b=null;
+                }
+
+                if(b!=null)
+                    brawlerPickRate.put(b.getName(),brawlerPickRate.get(b.getName())+1);
+
+            }//Log
+
+        });
     }
 }
