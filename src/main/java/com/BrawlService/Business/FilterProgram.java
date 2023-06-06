@@ -55,9 +55,14 @@ public class FilterProgram {
     private void getClubBattleLog(HashMap<String, ArrayList<Log>> clubBattleLogs, ArrayList<Player> clubList, BrawlRequest req){
 
         ExecutorService executor = Executors.newFixedThreadPool(15);
+
         clubList.forEach(player->
-             executor.submit(new Thread(() -> clubBattleLogs.put(player.getName(),req.getBattleLog(player.getTag()))))
-            );
+                executor.submit(() -> {
+                    synchronized (this) {
+                        clubBattleLogs.put(player.getName(),new BrawlRequest().getBattleLog(player.getTag()) );
+                    }
+                })
+        );
 
         shutdownAndAwaitTermination(executor);
 
@@ -69,10 +74,12 @@ public class FilterProgram {
         BrawlRequest req = new BrawlRequest();
         HashMap<String,ArrayList<Log>> playerLogs = new HashMap<>();
         ArrayList<Player> clubList = req.getClubMembers(clubTag);
-
+        long startTime = System.currentTimeMillis();
         getClubBattleLog(playerLogs,clubList,req);
 
         //FILTERING WINS
+        long endTime = System.currentTimeMillis();
+        System.out.println(Colour.ANSI_RESET+(endTime-startTime)/1000+"s");
        return filterWins(playerLogs,clubList,oldWinList);
 
 
@@ -85,18 +92,23 @@ public class FilterProgram {
        //Loop through each players log, count up their wins and store those stats
         for (Player p: clubList) {
 
-            long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0;
+            long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0,winsDuo=0;
 
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
             String battleTime = oldWinList.stream()
                     .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
                     .findFirst().orElse(new BattleWin()).getBattleTime();
 
+            System.out.println(Colour.ANSI_BLUE+p.getName()+Colour.ANSI_RED+"| Old battle time was: "+battleTime+Colour.ANSI_RESET);
+
             //String battleTime = oldWinList.stream().filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag())).findFirst().orElse(new BattleWin()).getBattleTime();
             for (Log l : playerLogs.get(p.getName())){
 
-                if(l.getBattleTime().equals(battleTime))
+                if(l.getBattleTime().equals(battleTime)) {
+                    System.out.println("Break executed because of: "+Colour.ANSI_GREEN+l.getBattleTime());
                     break;
+                }
+
 
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
                     if (l.getBattle().getMode().equals("duels")){
@@ -108,12 +120,17 @@ public class FilterProgram {
                 if (l.getBattle().getRank() < 5 &&l.getBattle().getMode().equals("soloShowdown")){
                     winsSolo++;
                 }
+                if (l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")){
+                    winsDuo++;
+                }
                 totalBattles++;
             }
 
+            battleTime = playerLogs.get(p.getName()).get(0).getBattleTime();
+
             //An ArrayList containing different win stats
-            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,totalBattles)),
-                    playerLogs.get(p.getName()).get(0).getBattleTime()));
+            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,winsDuo,totalBattles)),
+                    battleTime));
 
         }
         return  playerVictories;
@@ -127,6 +144,7 @@ public class FilterProgram {
                     + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
                     + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
                     + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
+                    + Colour.ANSI_BLACK + " | Duos: " + win.getWins().get(3)
                     + Colour.ANSI_YELLOW + " | W/R: " + winRate);
         });
 
