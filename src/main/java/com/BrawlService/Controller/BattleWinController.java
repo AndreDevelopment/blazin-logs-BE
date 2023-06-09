@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class BattleWinController {
 
     @Autowired
@@ -24,10 +25,10 @@ public class BattleWinController {
 
 
     @GetMapping("/update/wins")
-    public String updateWins(){
+    public ResponseEntity<String> updateWins(){
         FilterProgram fp = new FilterProgram();
         service.updateBattleHistory(fp.getClubVictories("#VV9PVYYO",service.getBattleHistory()));
-        return "update successful";
+        return new ResponseEntity<>("Update successful",HttpStatus.ACCEPTED);
     }
 
 //    @GetMapping("/fetch")

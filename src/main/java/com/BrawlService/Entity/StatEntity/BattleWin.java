@@ -19,6 +19,8 @@ public class BattleWin {
     private Player player;
     ArrayList<Long> wins;
 
+    private double winRate;
+
     public BattleWin(){
         wins = new ArrayList<>();
     }
@@ -27,6 +29,7 @@ public class BattleWin {
         this.player = player;
         this.wins = wins;
         this.battleTime = battleTime;
+
     }
 
     public void addWin(long stat){

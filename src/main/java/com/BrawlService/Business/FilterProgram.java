@@ -141,14 +141,14 @@ public class FilterProgram {
         //25 is the max amount of battles pulled per Player
         DecimalFormat format = new DecimalFormat("#.##");
         playerVictories.forEach((win)->{
-            double winRate = (double) (win.getWins().get(0) + win.getWins().get(1) + win.getWins().get(2)) / win.getWins().get(4);
+
             System.out.println(Colour.ANSI_BLUE + win.getPlayer().getName()
                     + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
                     + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
                     + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
                     + Colour.ANSI_RESET+ " | Duos: " + win.getWins().get(3)
                     + Colour.ANSI_RED + " | Total Battles: " + win.getWins().get(4)
-                    + Colour.ANSI_YELLOW + " | W/R: " + format.format(winRate));
+                    + Colour.ANSI_YELLOW + " | W/R: " + format.format(win.getWinRate()));
         });
 
         //System.out.println(Colour.ANSI_RED + "Total battles played (per player): " +25+Colour.ANSI_RESET);

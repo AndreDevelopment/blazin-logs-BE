@@ -34,6 +34,7 @@ public class BattleWinService {
             BattleWin oldRecord = findPlayerBattleWin(bw.getPlayer().getTag());
 
             if(oldRecord==null){
+                bw.setWinRate(calculateWinRate(bw.getWins()));
                 modifiedRecords.add(bw);
             }else {
                 ArrayList<Long> wins = bw.getWins();
@@ -41,11 +42,17 @@ public class BattleWinService {
                 for (int i = 0; i < wins.size(); i++) {
                     wins.set(i, wins.get(i) + oldRecord.getWins().get(i));
                 }
+                bw.setWinRate(calculateWinRate(bw.getWins()));
                 modifiedRecords.add(bw);
             }
         }
 
         battleWinRepository.saveAll(modifiedRecords);
+    }
+
+    private double calculateWinRate(ArrayList<Long> wins){
+
+        return (double)(wins.get(0)+wins.get(1) + wins.get(2)+ wins.get(3)) / wins.get(4);
     }
 
     public BattleWin findPlayerBattleWin(String tag){
