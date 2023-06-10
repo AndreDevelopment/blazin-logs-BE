@@ -10,12 +10,16 @@ import java.net.http.HttpResponse;
 /*
 * Created by: Andre D'Souza
 * Purpose: Responsible for creating an HTTP request to the Brawl Stars API and returning the response in the form of a JSON string.
-* NOTES: Token is unique to my IP. Endpoints are sent using the Endpoint class which holds a list of accessible endpoints.
+* NOTES: Token is unique to my IP. Please create your own env variable with your unique key
 * */
 public class BrawlAPIClient {
 
     private static String response;
 
+    /*
+    * Params: endpoint - The endpoint of the Brawl API trying to be reached
+    * Returns: Response body of the request
+    * */
     public String getRequest(String endpoint){
 
         HttpClient client = HttpClient.newHttpClient();
@@ -39,7 +43,6 @@ public class BrawlAPIClient {
 
     private static void setResponse(String responseBody){
         response = responseBody;
-
     }
 
 

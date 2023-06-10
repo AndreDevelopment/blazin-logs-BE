@@ -11,25 +11,34 @@ import java.util.function.Function;
 
 /*
  * Created by: Andre D'Souza
- * Purpose: Encapsulate the logic for making every type of request to the Brawl API.
- * NOTES: Simply put these methods will only ask for a tag or id and then return the java object of
- * whichever entity/entities the user is looking for. Ex:
+ * Purpose: Encapsulate the logic for making a request to the Brawl API and convert the JSON response into a Java Bean
+ * NOTES: Each method in this class encapsulates the logic for a different type of request. Please see method documentation
  *
- * User sends tag: #R2Y08YC8 -> getPlayer(). getPlayer() returns a Player object with appropriate fields filled out.
- * */
+  */
 public class BrawlRequest {
     private final BrawlAPIClient client;
+
+    /*
+    * Params: tag - A player tag or club tag that needs to be converted
+    * Returns: the tag with the '#' replaced with '%23"
+    * */
     private final Function<String,String> convertTag = tag -> {
         if (tag.length()<=0)
             return "";
         return tag.charAt(0)=='#'? "%23"+tag.substring(1) : "%23"+tag;
     };
 
+
     public BrawlRequest(){
         client = new BrawlAPIClient();
     }
 
     //PLAYER RELATED REQUESTS
+
+    /*
+    * Params: tag of the Player
+    * Returns: Java Player Bean containing appropriate data
+    * */
     public Player getPlayer(String tag) {
         try{
             return JSONParser.parseEntity(client.getRequest("players/" + convertTag.apply(tag)),Player.class);
@@ -41,6 +50,10 @@ public class BrawlRequest {
         }
 
     }
+    /*
+     * Params: tag of the Player
+     * Returns: List of Logs (Beans)
+     */
     public ArrayList<Log> getBattleLog(String tag)  {
         try {
             return JSONParser.parseEntityList(
@@ -57,6 +70,11 @@ public class BrawlRequest {
     }
 
     //CLUB RELATED REQUESTS
+
+    /*
+     * Params: tag of the Club
+     * Returns: Java Club Bean containing appropriate data
+     * */
     public Club getClub(String tag)  {
         try {
             return JSONParser.parseEntity(client.getRequest("clubs/" + convertTag.apply(tag)), Club.class);
@@ -67,6 +85,10 @@ public class BrawlRequest {
         }
     }
 
+    /*
+     * Params: tag of the Player
+     * Returns: List of Player (Beans) of the specified club
+     * */
     public ArrayList<Player> getClubMembers(String tag) {
         try {
             return JSONParser.parseEntityList(new JSONObject(
@@ -82,6 +104,11 @@ public class BrawlRequest {
     }
 
     //BRAWLER RELATED REQUESTS
+
+    /*
+     * Params: tag of the Brawler
+     * Returns: Java Brawler Bean containing appropriate data
+     * */
     public Brawler getBrawler(String tag)  {
         try {
             return JSONParser.parseEntity(client.getRequest("brawlers/" + tag), Brawler.class);
@@ -92,6 +119,10 @@ public class BrawlRequest {
         }
     }
 
+    /*
+     * Params: <none>
+     * Returns: List of all available brawlers in game
+     * */
     public ArrayList<Brawler> getBrawlerList()  {
         try {
             return JSONParser.parseEntityList(
@@ -105,6 +136,11 @@ public class BrawlRequest {
     }
 
     //RANKING METHODS
+
+    /*
+     * Params: code - two-letter Country code or' global'
+     * Returns: List of Seasons containing start and end time of each season
+     * */
     public ArrayList<Season> getRankingPowerPlaySeasons(String code)  {
         try {
             return JSONParser.parseEntityList(new JSONObject(client.getRequest("rankings/" + code + "/powerplay/seasons"))
@@ -116,7 +152,10 @@ public class BrawlRequest {
             throw new RuntimeException(e);
         }
     }
-
+    /*
+     * Params: code - two-letter Country code or 'global' , id - of the season
+     * Returns: List of Players who were on the leaderboards that season
+     * */
     public ArrayList<Season> getRankingPowerPlaySeasonsById(String code,String id)  {
         try {
             return JSONParser.parseEntityList(new JSONObject(client.getRequest("rankings/" + code + "/powerplay/seasons/" + id))
@@ -128,7 +167,10 @@ public class BrawlRequest {
             throw new RuntimeException(e);
         }
     }
-
+    /*
+     * Params: code - two-letter Country code or 'global'
+     * Returns: List of Clubs that are on the leaderboards
+     * */
     public ArrayList<Club> getRankingClubs(String code)  {
         try {
             return JSONParser.parseEntityList(client.getRequest("rankings/" + code + "/clubs"), new TypeReference<>() {
@@ -139,7 +181,10 @@ public class BrawlRequest {
             throw new RuntimeException(e);
         }
     }
-
+    /*
+     * Params: code - two-letter Country code or 'global'
+     * Returns: List of Players that are on the leaderboards
+     * */
     public ArrayList<Player> getRankingPlayers(String code)  {
      try {
         return JSONParser.parseEntityList(new JSONObject(client.getRequest("rankings/" + code + "/players"))
@@ -151,7 +196,10 @@ public class BrawlRequest {
         throw new RuntimeException(e);
       }
     }
-
+    /*
+     * Params: code - two-letter Country code or 'global'
+     * Returns: List of Players that are on the leaderboards for specified Brawler
+     * */
     public ArrayList<Player> getRankingBrawler(String code,String id)  {
         try {
             return JSONParser.parseEntityList(new JSONObject(client.getRequest("rankings/" + code + "/brawlers/" + id))
@@ -163,7 +211,10 @@ public class BrawlRequest {
             throw new RuntimeException(e);
         }
     }
-
+    /*
+     * Params: <none>
+     * Returns: List of Events currently in game
+     * */
     public ArrayList<EventSlot> getEventRotation()  {
         try {
             return JSONParser.parseEntityList(new JSONArray(
