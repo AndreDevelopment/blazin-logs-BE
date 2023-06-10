@@ -34,7 +34,7 @@ public class FilterProgram {
 
 
         //Getting the battleLog of every club member
-        getClubBattleLog(playerLogs,clubList,req);
+        getClubBattleLog(playerLogs,clubList);
 
         HashMap<String, Integer> brawlerPickRate =new HashMap<>();
         //Initialize each brawler count to 0
@@ -53,7 +53,12 @@ public class FilterProgram {
 
 
 
-    private void getClubBattleLog(HashMap<String, ArrayList<Log>> clubBattleLogs, ArrayList<Player> clubList, BrawlRequest req){
+    /*
+     * Params: clubBattleLogs - map of Player name : BattleLog
+     *         clubList - List of Players belonging to a club
+     * Returns: <nothing> clubBattleLogs will be populated appropriately
+     * */
+    private void getClubBattleLog(HashMap<String, ArrayList<Log>> clubBattleLogs, ArrayList<Player> clubList){
 
         ExecutorService executor = Executors.newFixedThreadPool(15);
 
@@ -69,6 +74,11 @@ public class FilterProgram {
 
     }
 
+    /*
+     * Params: clubTag - tag of the club
+     *         oldWinList - Data from the DB facilitate updating information
+     * Returns: List of updated BattleWins
+     * */
     public  ArrayList<BattleWin> getClubVictories(String clubTag,List<BattleWin> oldWinList)  {
 
 
@@ -76,7 +86,7 @@ public class FilterProgram {
         HashMap<String,ArrayList<Log>> playerLogs = new HashMap<>();
         ArrayList<Player> clubList = req.getClubMembers(clubTag);
         long startTime = System.currentTimeMillis();
-        getClubBattleLog(playerLogs,clubList,req);
+        getClubBattleLog(playerLogs,clubList);
 
         //FILTERING WINS
         long endTime = System.currentTimeMillis();
@@ -86,7 +96,12 @@ public class FilterProgram {
 
     }
 
-
+    /*
+     * Params: playerLogs - map of Player name : BattleLog
+     *         clubList - List of Players belonging to a club
+     *         oldWinList - Data from the DB facilitate updating information
+     * Returns: BattleWin list with new info filtered from recent battle logs
+     * */
     private ArrayList<BattleWin> filterWins(HashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
 
@@ -137,6 +152,10 @@ public class FilterProgram {
         return  playerVictories;
     }
 
+    /*
+     * Params: playerVictories - contains recent win information
+     * Returns: Printed information in the console
+     * */
     public  void printVictoryResults(ArrayList<BattleWin> playerVictories){
         //25 is the max amount of battles pulled per Player
         DecimalFormat format = new DecimalFormat("#.##");
@@ -153,7 +172,10 @@ public class FilterProgram {
 
         //System.out.println(Colour.ANSI_RED + "Total battles played (per player): " +25+Colour.ANSI_RESET);
     }
-
+    /*
+     * Params: executorService - contains threads to be run
+     * Returns: Shutdown of all dead threads
+     * */
     private void shutdownAndAwaitTermination(ExecutorService executorService) {
         executorService.shutdown();
         try {

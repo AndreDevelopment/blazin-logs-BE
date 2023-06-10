@@ -8,6 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 import java.util.ArrayList;
+
+/*
+*
+* Data Structure used to store information regarding players win statistics
+* */
 @Data
 @AllArgsConstructor
 @Document(collection = "ClubBattleWin")

@@ -22,8 +22,7 @@ public class BattleWinController {
     @Autowired
     BattleWinService service;
 
-
-
+    //Endpoint for updating player wins
     @GetMapping("/update/wins")
     public ResponseEntity<String> updateWins(){
         FilterProgram fp = new FilterProgram();
@@ -31,36 +30,16 @@ public class BattleWinController {
         return new ResponseEntity<>("Update successful",HttpStatus.ACCEPTED);
     }
 
-//    @GetMapping("/fetch")
-//    public String showWins(){
-//
-//        StringBuilder data = new StringBuilder();
-//
-//        List<BattleWin> wins = service.getBattleHistory();
-//
-//        for (BattleWin win: wins){
-//            double winRate = (double) (win.getWins().get(0) + win.getWins().get(1) + win.getWins().get(2)) / win.getWins().get(4);
-//            data    .append(win.getPlayer().getName())
-//                    .append(" | 3v3 victories: ").append(win.getWins().get(0))
-//                    .append(" | Solo victories: ").append(win.getWins().get(1))
-//                    .append(" | Duels: ").append(win.getWins().get(2))
-//                   .append(" | Duos: ").append(win.getWins().get(3))
-//                    .append(" | W/R: ").append(winRate).append("\n");
-//        }
-//
-//        new FilterProgram().printVictoryResults((ArrayList<BattleWin>) wins);
-//
-//        return data.toString();
-//    }
 
+    //Endpoint for fetching all player win info
     @GetMapping("/fetch")
     public ResponseEntity<List<BattleWin>>getClubWinHistory(){
         return new ResponseEntity<>(service.getBattleHistory(), HttpStatus.ACCEPTED);
     }
 
+    //Endpoint for finding a specific players win history
     @GetMapping("/find/{playerTag}")
     public BattleWin getPlayerHistory(@PathVariable final String playerTag){
-        System.out.println(playerTag);
         return  service.findPlayerBattleWin(playerTag);
     }
 
