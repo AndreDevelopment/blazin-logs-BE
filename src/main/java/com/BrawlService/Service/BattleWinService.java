@@ -45,38 +45,25 @@ public class BattleWinService {
      * */
     public void updateBattleHistory(List<BattleWin> battleWins){
 
-
-
         List<BattleWin> modifiedRecords = new ArrayList<>();
 
         for (BattleWin bw:battleWins) {
             BattleWin oldRecord = findPlayerBattleWin(bw.getPlayer().getTag());
 
-            if(oldRecord==null){
-                bw.setWinRate(calculateWinRate(bw.getWins()));
-                modifiedRecords.add(bw);
-            }else {
+            if(oldRecord!=null){
                 ArrayList<Long> wins = bw.getWins();
                 bw.set_id(oldRecord.get_id());
                 for (int i = 0; i < wins.size(); i++) {
                     wins.set(i, wins.get(i) + oldRecord.getWins().get(i));
                 }
-                bw.setWinRate(calculateWinRate(bw.getWins()));
-                modifiedRecords.add(bw);
             }
+            bw.setWinRate(calculateWinRate(bw.getWins()));
+            modifiedRecords.add(bw);
         }
 
         battleWinRepository.saveAll(modifiedRecords);
     }
 
-    /*
-     * Params: List of win stats
-     * Returns: winRate = total victories / total battles played
-     * */
-    private double calculateWinRate(ArrayList<Long> wins){
-
-        return (double)(wins.get(0)+wins.get(1) + wins.get(2)+ wins.get(3)) / wins.get(4);
-    }
     /*
      * Params: tag - A player tag
      * Returns: BattleWin associated with that Player
@@ -94,7 +81,14 @@ public class BattleWinService {
             return tag;
         return tag.charAt(0)=='%'? "#"+ tag.substring(3): "#" +tag;
     };
+    /*
+     * Params: List of win stats
+     * Returns: winRate = total victories / total battles played
+     * */
+    private double calculateWinRate(ArrayList<Long> wins){
 
+        return (double)(wins.get(0)+wins.get(1) + wins.get(2)+ wins.get(3)) / wins.get(4);
+    }
 
 
 }

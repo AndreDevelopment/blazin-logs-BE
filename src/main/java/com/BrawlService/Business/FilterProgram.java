@@ -115,16 +115,10 @@ public class FilterProgram {
                     .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
                     .findFirst().orElse(new BattleWin()).getBattleTime();
 
-            System.out.println(Colour.ANSI_BLUE+p.getName()+Colour.ANSI_RED+"| Old battle time was: "+battleTime+Colour.ANSI_RESET);
-
-            //String battleTime = oldWinList.stream().filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag())).findFirst().orElse(new BattleWin()).getBattleTime();
             for (Log l : playerLogs.get(p.getName())){
 
-                if(l.getBattleTime().equals(battleTime)) {
-                    System.out.println("Break executed because of: "+Colour.ANSI_GREEN+l.getBattleTime());
+                if(l.getBattleTime().equals(battleTime))
                     break;
-                }
-
 
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
                     if (l.getBattle().getMode().equals("duels")){
@@ -145,8 +139,7 @@ public class FilterProgram {
             battleTime = playerLogs.get(p.getName()).get(0).getBattleTime();
 
             //An ArrayList containing different win stats
-            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,winsDuo,totalBattles)),
-                    battleTime));
+            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,winsDuo,totalBattles)),battleTime));
 
         }
         return  playerVictories;
