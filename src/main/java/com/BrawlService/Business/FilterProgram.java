@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +27,7 @@ public class FilterProgram {
         long startTime = System.currentTimeMillis();
         BrawlRequest req = new BrawlRequest();
         ArrayList<String> brawlerNames = new ArrayList<>();
-        HashMap<String,ArrayList<Log>> playerLogs = new HashMap<>();
+        ConcurrentHashMap<String,ArrayList<Log>> playerLogs = new ConcurrentHashMap<>();
         ArrayList<Player> clubList = req.getClubMembers(clubTag);
 
         //Fetching names of all brawlers
@@ -58,15 +59,13 @@ public class FilterProgram {
      *         clubList - List of Players belonging to a club
      * Returns: <nothing> clubBattleLogs will be populated appropriately
      * */
-    private void getClubBattleLog(HashMap<String, ArrayList<Log>> clubBattleLogs, ArrayList<Player> clubList){
+    private void getClubBattleLog(ConcurrentHashMap<String, ArrayList<Log>> clubBattleLogs, ArrayList<Player> clubList){
 
         ExecutorService executor = Executors.newFixedThreadPool(15);
 
         clubList.forEach(player->
                 executor.submit(() -> {
-                    synchronized (this) {
-                        clubBattleLogs.put(player.getName(),new BrawlRequest().getBattleLog(player.getTag()) );
-                    }
+                    clubBattleLogs.put(player.getName(),new BrawlRequest().getBattleLog(player.getTag()) );
                 })
         );
 
@@ -81,10 +80,8 @@ public class FilterProgram {
      * */
     public  ArrayList<BattleWin> getClubVictories(String clubTag,List<BattleWin> oldWinList)  {
 
-
-        BrawlRequest req = new BrawlRequest();
-        HashMap<String,ArrayList<Log>> playerLogs = new HashMap<>();
-        ArrayList<Player> clubList = req.getClubMembers(clubTag);
+        ConcurrentHashMap<String,ArrayList<Log>> playerLogs = new ConcurrentHashMap<>();
+        ArrayList<Player> clubList = new BrawlRequest().getClubMembers(clubTag);
         long startTime = System.currentTimeMillis();
         getClubBattleLog(playerLogs,clubList);
 
@@ -102,7 +99,7 @@ public class FilterProgram {
      *         oldWinList - Data from the DB facilitate updating information
      * Returns: BattleWin list with new info filtered from recent battle logs
      * */
-    private ArrayList<BattleWin> filterWins(HashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
+    private ArrayList<BattleWin> filterWins(ConcurrentHashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
 
        //Loop through each players log, count up their wins and store those stats
@@ -182,7 +179,7 @@ public class FilterProgram {
     }
 
 
-    private void filterBrawlerCount(HashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList, HashMap<String, Integer> brawlerPickRate){
+    private void filterBrawlerCount(ConcurrentHashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList, HashMap<String, Integer> brawlerPickRate){
 
         playerLogs.forEach((key,list)->{
 

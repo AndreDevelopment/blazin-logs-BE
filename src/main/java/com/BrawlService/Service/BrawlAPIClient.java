@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 * */
 public class BrawlAPIClient {
 
-    private static String response;
+    private  String response;
 
     /*
     * Params: endpoint - The endpoint of the Brawl API trying to be reached
@@ -34,14 +34,14 @@ public class BrawlAPIClient {
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenAccept(BrawlAPIClient::setResponse)
+                .thenAccept(this::setResponse)
                 .join();
 
         return response;
     }
 
 
-    private static void setResponse(String responseBody){
+    private  void setResponse(String responseBody){
         response = responseBody;
     }
 
