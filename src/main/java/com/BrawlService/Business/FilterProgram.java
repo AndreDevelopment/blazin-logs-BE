@@ -1,7 +1,7 @@
 package com.BrawlService.Business;
 
 
-import com.BrawlService.Entity.BrawlEntity.Brawler;
+
 import com.BrawlService.Entity.BrawlEntity.Log;
 import com.BrawlService.Entity.BrawlEntity.Player;
 import com.BrawlService.Entity.StatEntity.BattleWin;
@@ -10,8 +10,6 @@ import com.BrawlService.Service.BrawlRequest;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -22,35 +20,6 @@ public class FilterProgram {
 
 
 
-    public void getMostUsedBrawler(String clubTag){
-
-        long startTime = System.currentTimeMillis();
-        BrawlRequest req = new BrawlRequest();
-        ArrayList<String> brawlerNames = new ArrayList<>();
-        ConcurrentHashMap<String,ArrayList<Log>> playerLogs = new ConcurrentHashMap<>();
-        ArrayList<Player> clubList = req.getClubMembers(clubTag);
-
-        //Fetching names of all brawlers
-        req.getBrawlerList().forEach(brawler -> brawlerNames.add(brawler.getName()));
-
-
-        //Getting the battleLog of every club member
-        getClubBattleLog(playerLogs,clubList);
-
-        HashMap<String, Integer> brawlerPickRate =new HashMap<>();
-        //Initialize each brawler count to 0
-        brawlerNames.forEach(name->brawlerPickRate.put(name,0));
-        filterBrawlerCount(playerLogs,clubList,brawlerPickRate);
-
-
-        brawlerPickRate.forEach((key,object)->
-            System.out.println(Colour.ANSI_BLUE + "Name: "+key+Colour.ANSI_RESET+" | "+Colour.ANSI_GREEN +"Count:"+object)
-        );
-        System.out.println(Colour.ANSI_RESET+"Total battles is: "+clubList.size()*25+Colour.ANSI_RESET);
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time taken " +((endTime-startTime)/1000)+"s");
-    }
 
 
 
@@ -179,57 +148,5 @@ public class FilterProgram {
     }
 
 
-    private void filterBrawlerCount(ConcurrentHashMap<String,ArrayList<Log>> playerLogs,ArrayList<Player> clubList, HashMap<String, Integer> brawlerPickRate){
 
-        playerLogs.forEach((key,list)->{
-
-            Player p =  clubList.stream().filter(player -> player.getName().equals(key)).findFirst().orElse(new Player("no player"));
-            Brawler b;
-
-            for (Log l : list) {
-
-                //3v3 Battles : Identifying which brawler the intended club member played
-                if (!l.getBattle().getTeams().isEmpty()){
-                    /*
-                     * 1. Find which team contains intended player
-                     * 2. Pull out the Player object from the team containing the Player (p)
-                     * 3. Set b equal to the return value of which Brawler the player opted for
-                     * */
-                    b =  l.getBattle().getTeams()
-                            .stream().filter(team->team.contains(p)).findFirst().orElse(new ArrayList<>())
-                            .stream().filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
-                            .getBrawler();
-
-                }
-                //soloShowdown or bossFight : Identifying which brawler the intended club member played
-                else if (!l.getBattle().getPlayers().isEmpty()&& !l.getBattle().getMode().equals("duels")){
-                    /*
-                     * 1. Pull out the Player p that belongs to the clubMemberList
-                     * 2. Identify their Brawler selection and set b.
-                     * */
-                    b = l.getBattle().getPlayers().stream()
-                            .filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
-                            .getBrawler();
-
-                }
-                //Duels : Identifying which brawler the intended club member played
-                else {
-                    /*
-                     * 1. Pull out the Player p that belongs to the clubMemberList
-                     * 2. Since duels contains a selection of 3 brawlers, I will increase the count of each one
-                     * */
-                    l.getBattle().getPlayers()
-                            .stream().filter(player -> player.equals(p)).findFirst().orElse(new Player("no player"))
-                            .getBrawlers()
-                            .forEach(brawler -> brawlerPickRate.put(brawler.getName(), brawlerPickRate.get(brawler.getName()) + 1));
-                    b=null;
-                }
-
-                if(b!=null)
-                    brawlerPickRate.put(b.getName(),brawlerPickRate.get(b.getName())+1);
-
-            }//Log
-
-        });
-    }
 }

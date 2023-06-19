@@ -27,7 +27,7 @@ public class BattleWinController {
     public ResponseEntity<String> updateWins(){
         FilterProgram fp = new FilterProgram();
         service.updateBattleHistory(fp.getClubVictories("#VV9PVYYO",service.getBattleHistory()));
-        return new ResponseEntity<>("Update successful",HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Success",HttpStatus.ACCEPTED);
     }
 
 
