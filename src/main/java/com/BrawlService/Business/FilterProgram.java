@@ -67,9 +67,7 @@ public class FilterProgram {
      *         clubList - List of Players belonging to a club
      *         oldWinList - Data from the DB facilitate updating information
      * Returns: BattleWin list with new info filtered from recent battle logs
-     * TODO: 1. Check conditions of counting up wins & total battles for each mode
-     *      2. Modify BattleWin to have total battles var.
-     *      3. Make sure the temp BattleWin is updated appropriately
+
      * */
     private ArrayList<BattleWin> filterWins(ConcurrentHashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
@@ -78,7 +76,7 @@ public class FilterProgram {
         for (Player p: clubList) {
 
             BattleWin temp = new BattleWin();
-            int totalBattles =0 , totalVictories =0;
+            long totalBattles =0 , totalVictories =0;
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
             String battleTime = oldWinList.stream()
                     .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
@@ -106,8 +104,11 @@ public class FilterProgram {
                 totalBattles++;
             }
 
-            battleTime = playerLogs.get(p.getName()).get(0).getBattleTime();
 
+            temp.setPlayer(p);
+            temp.setBattleTime(playerLogs.get(p.getName()).get(0).getBattleTime());
+            temp.setTotalBattles(totalBattles);
+            temp.setTotalVictories(totalVictories);
             //An ArrayList containing different win stats
             playerVictories.add(temp);
 

@@ -23,6 +23,8 @@ public class BattleWin {
     @Id
     private String _id;
 
+    private long totalBattles,totalVictories;
+
     private String battleTime;
     private Player player;
     Map<String, ArrayList<Long>> wins;
@@ -37,10 +39,12 @@ public class BattleWin {
     }
     }
 
-    public  BattleWin(Player player, HashMap<String,ArrayList<Long>> wins,String battleTime) {
+    public  BattleWin(Player player, HashMap<String,ArrayList<Long>> wins,String battleTime,long totalBattles,long totalVictories) {
         this.player = player;
         this.wins = wins;
         this.battleTime = battleTime;
+        this.totalBattles = totalBattles;
+        this.totalVictories = totalVictories;
 
     }
 
