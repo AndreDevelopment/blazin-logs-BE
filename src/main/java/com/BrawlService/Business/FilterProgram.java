@@ -67,6 +67,9 @@ public class FilterProgram {
      *         clubList - List of Players belonging to a club
      *         oldWinList - Data from the DB facilitate updating information
      * Returns: BattleWin list with new info filtered from recent battle logs
+     * TODO: 1. Check conditions of counting up wins & total battles for each mode
+     *      2. Modify BattleWin to have total battles var.
+     *      3. Make sure the temp BattleWin is updated appropriately
      * */
     private ArrayList<BattleWin> filterWins(ConcurrentHashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
@@ -74,8 +77,8 @@ public class FilterProgram {
        //Loop through each players log, count up their wins and store those stats
         for (Player p: clubList) {
 
-            long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0,winsDuo=0;
-
+            BattleWin temp = new BattleWin();
+            int totalBattles =0 , totalVictories =0;
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
             String battleTime = oldWinList.stream()
                     .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
@@ -86,26 +89,27 @@ public class FilterProgram {
                 if(l.getBattleTime().equals(battleTime))
                     break;
 
-                if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
-                    if (l.getBattle().getMode().equals("duels")){
-                        wins1v1 ++;
-                    }else {
-                        wins3v3++;
-                    }
+                //If condition is plainly looking for victories whether it be 3v3 or solo, duo etc.
+                if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory") ||
+                        l.getBattle().getRank() < 5 &&  !l.getBattle().getMode().equals("duoShowdown") ||
+                        l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")
+                ){
+
+                    //The gameMode map looks like [ mode : [wins,total] ]. Over here I update the wins
+                    ArrayList<Long> winsOfGameMode = temp.getWins().get(l.getEvent().getMode());
+                    winsOfGameMode.set(0,winsOfGameMode.get(0)+1);
+                    totalVictories++;
                 }
-                if (l.getBattle().getRank() < 5 &&l.getBattle().getMode().equals("soloShowdown")){
-                    winsSolo++;
-                }
-                if (l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")){
-                    winsDuo++;
-                }
+                //Here I am updated the total count
+                ArrayList<Long> winsOfGameMode = temp.getWins().get(l.getEvent().getMode());
+                winsOfGameMode.set(1,winsOfGameMode.get(1)+1);
                 totalBattles++;
             }
 
             battleTime = playerLogs.get(p.getName()).get(0).getBattleTime();
 
             //An ArrayList containing different win stats
-            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,winsDuo,totalBattles)),battleTime));
+            playerVictories.add(temp);
 
         }
         return  playerVictories;
