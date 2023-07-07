@@ -78,14 +78,15 @@ public class FilterProgram {
             BattleWin temp = new BattleWin();
             long totalBattles =0 , totalVictories =0;
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
-            String battleTime = oldWinList.stream()
-                    .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
-                    .findFirst().orElse(new BattleWin()).getBattleTime();
+            String battleTime;
+//            = oldWinList.stream()
+//                    .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
+//                    .findFirst().orElse(new BattleWin()).getBattleTime();
 
             for (Log l : playerLogs.get(p.getName())){
 
-                if(l.getBattleTime().equals(battleTime))
-                    break;
+//                if(l.getBattleTime().equals(battleTime))
+//                    break;
 
                 //If condition is plainly looking for victories whether it be 3v3 or solo, duo etc.
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory") ||

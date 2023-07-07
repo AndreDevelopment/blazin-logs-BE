@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /*
@@ -51,13 +53,15 @@ public class BattleWinService {
             BattleWin oldRecord = findPlayerBattleWin(bw.getPlayer().getTag());
 
             if(oldRecord!=null){
-                ArrayList<Long> wins = bw.getWins();
+                Map<String,ArrayList<Long>> wins = bw.getWins();
                 bw.set_id(oldRecord.get_id());
-                for (int i = 0; i < wins.size(); i++) {
-                    wins.set(i, wins.get(i) + oldRecord.getWins().get(i));
+                for (String key: wins.keySet()) {
+                    //Access gameMode from HashMap ->
+                    bw.getWins().get(key).set(0,oldRecord.getWins().get(key).get(0)+bw.getWins().get(key).get(0));
+                    bw.getWins().get(key).set(1,oldRecord.getWins().get(key).get(1)+bw.getWins().get(key).get(1));
                 }
             }
-            bw.setWinRate(calculateWinRate(bw.getWins()));
+            bw.setWinRate((double)bw.getTotalVictories()/bw.getTotalBattles());
             modifiedRecords.add(bw);
         }
 
