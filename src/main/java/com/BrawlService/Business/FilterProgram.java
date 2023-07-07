@@ -5,6 +5,7 @@ package com.BrawlService.Business;
 import com.BrawlService.Entity.BrawlEntity.Log;
 import com.BrawlService.Entity.BrawlEntity.Player;
 import com.BrawlService.Entity.StatEntity.BattleWin;
+import com.BrawlService.Entity.StatEntity.GameModes;
 import com.BrawlService.Service.BrawlRequest;
 
 
@@ -78,16 +79,15 @@ public class FilterProgram {
             BattleWin temp = new BattleWin();
             long totalBattles =0 , totalVictories =0;
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
-            String battleTime;
-//            = oldWinList.stream()
-//                    .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
-//                    .findFirst().orElse(new BattleWin()).getBattleTime();
+            String battleTime = oldWinList.stream()
+                    .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
+                    .findFirst().orElse(new BattleWin()).getBattleTime();
 
             for (Log l : playerLogs.get(p.getName())){
 
-//                if(l.getBattleTime().equals(battleTime))
-//                    break;
-
+                if(l.getBattleTime().equals(battleTime))
+                    break;
+                System.out.println("Mode: " + l.getBattle().getMode() + " Player: "+p.getName());
                 //If condition is plainly looking for victories whether it be 3v3 or solo, duo etc.
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory") ||
                         l.getBattle().getRank() < 5 &&  !l.getBattle().getMode().equals("duoShowdown") ||
@@ -95,13 +95,18 @@ public class FilterProgram {
                 ){
 
                     //The gameMode map looks like [ mode : gameModeWin ]. Over here I update the wins
-                    temp.getWins().get(l.getEvent().getMode()).incrementVictories();
-                    totalVictories++;
+                    if (!GameModes.ignoreModes.contains(l.getBattle().getMode())) {
+                        temp.getWins().get(l.getBattle().getMode()).incrementVictories();
+                        totalVictories++;
+                    }
                 }
                 //Here I am updated the total count
-                temp.getWins().get(l.getEvent().getMode()).incrementTotalBattles();
-                totalBattles++;
-            }
+
+                if (!GameModes.ignoreModes.contains(l.getBattle().getMode())) {
+                    temp.getWins().get(l.getBattle().getMode()).incrementTotalBattles();
+                    totalBattles++;
+                }
+            }// end of for
 
 
             temp.setPlayer(p);
@@ -119,22 +124,19 @@ public class FilterProgram {
      * Params: playerVictories - contains recent win information
      * Returns: Printed information in the console
      * */
-    public  void printVictoryResults(ArrayList<BattleWin> playerVictories){
-        //25 is the max amount of battles pulled per Player
-        DecimalFormat format = new DecimalFormat("#.##");
-        playerVictories.forEach((win)->{
-
-            System.out.println(Colour.ANSI_BLUE + win.getPlayer().getName()
-                    + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
-                    + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
-                    + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
-                    + Colour.ANSI_RESET+ " | Duos: " + win.getWins().get(3)
-                    + Colour.ANSI_RED + " | Total Battles: " + win.getWins().get(4)
-                    + Colour.ANSI_YELLOW + " | W/R: " + format.format(win.getWinRate()));
-        });
-
-        //System.out.println(Colour.ANSI_RED + "Total battles played (per player): " +25+Colour.ANSI_RESET);
-    }
+//    public  void printVictoryResults(ArrayList<BattleWin> playerVictories){
+//        //25 is the max amount of battles pulled per Player
+//        DecimalFormat format = new DecimalFormat("#.##");
+//        playerVictories.forEach((win)-> System.out.println(Colour.ANSI_BLUE + win.getPlayer().getName()
+//                + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
+//                + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
+//                + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
+//                + Colour.ANSI_RESET+ " | Duos: " + win.getWins().get(3)
+//                + Colour.ANSI_RED + " | Total Battles: " + win.getWins().get(4)
+//                + Colour.ANSI_YELLOW + " | W/R: " + format.format(win.getWinRate())));
+//
+//        //System.out.println(Colour.ANSI_RED + "Total battles played (per player): " +25+Colour.ANSI_RESET);
+//    }
     /*
      * Params: executorService - contains threads to be run
      * Returns: Shutdown of all dead threads
