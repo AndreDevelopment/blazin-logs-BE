@@ -1,6 +1,7 @@
 package com.BrawlService.Service;
 
 import com.BrawlService.Entity.StatEntity.BattleWin;
+import com.BrawlService.Entity.StatEntity.GameModeWin;
 import com.BrawlService.Repository.BattleWinRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,12 +54,15 @@ public class BattleWinService {
             BattleWin oldRecord = findPlayerBattleWin(bw.getPlayer().getTag());
 
             if(oldRecord!=null){
-                Map<String,ArrayList<Long>> wins = bw.getWins();
+                Map<String, GameModeWin> wins = bw.getWins();
                 bw.set_id(oldRecord.get_id());
                 for (String key: wins.keySet()) {
-                    //Access gameMode from HashMap ->
-                    bw.getWins().get(key).set(0,oldRecord.getWins().get(key).get(0)+bw.getWins().get(key).get(0));
-                    bw.getWins().get(key).set(1,oldRecord.getWins().get(key).get(1)+bw.getWins().get(key).get(1));
+                    //Updating GameMode specific W/R, victories and total battles
+                    GameModeWin temp = bw.getWins().get(key);
+                    temp.addVictories(oldRecord.getWins().get(key).getTotalVictories());
+                    temp.addTotalBattle(oldRecord.getWins().get(key).getTotalBattles());
+                    temp.setWinRate((double)temp.getTotalVictories()/temp.getTotalBattles());
+
                 }
             }
             bw.setWinRate((double)bw.getTotalVictories()/bw.getTotalBattles());

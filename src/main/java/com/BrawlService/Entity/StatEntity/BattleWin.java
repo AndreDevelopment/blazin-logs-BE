@@ -27,7 +27,7 @@ public class BattleWin {
 
     private String battleTime;
     private Player player;
-    Map<String, ArrayList<Long>> wins;
+    Map<String, GameModeWin> wins;
 
     private double winRate;
 
@@ -35,11 +35,11 @@ public class BattleWin {
     wins = new HashMap<>();
 
     for(String mode: GameModes.gameModes){
-        wins.put(mode, ( ArrayList<Long>)List.of( 0L,0L));
+        wins.put(mode, new GameModeWin());
     }
     }
 
-    public  BattleWin(Player player, HashMap<String,ArrayList<Long>> wins,String battleTime,long totalBattles,long totalVictories) {
+    public  BattleWin(Player player, HashMap<String,GameModeWin> wins,String battleTime,long totalBattles,long totalVictories) {
         this.player = player;
         this.wins = wins;
         this.battleTime = battleTime;
@@ -48,7 +48,7 @@ public class BattleWin {
 
     }
 
-    public void addWin(String mode, ArrayList<Long> results){
+    public void addWin(String mode, GameModeWin results){
         wins.put(mode,results);
     }
 }

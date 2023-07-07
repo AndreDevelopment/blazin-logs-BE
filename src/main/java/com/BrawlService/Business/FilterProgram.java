@@ -94,14 +94,12 @@ public class FilterProgram {
                         l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")
                 ){
 
-                    //The gameMode map looks like [ mode : [wins,total] ]. Over here I update the wins
-                    ArrayList<Long> winsOfGameMode = temp.getWins().get(l.getEvent().getMode());
-                    winsOfGameMode.set(0,winsOfGameMode.get(0)+1);
+                    //The gameMode map looks like [ mode : gameModeWin ]. Over here I update the wins
+                    temp.getWins().get(l.getEvent().getMode()).incrementVictories();
                     totalVictories++;
                 }
                 //Here I am updated the total count
-                ArrayList<Long> winsOfGameMode = temp.getWins().get(l.getEvent().getMode());
-                winsOfGameMode.set(1,winsOfGameMode.get(1)+1);
+                temp.getWins().get(l.getEvent().getMode()).incrementTotalBattles();
                 totalBattles++;
             }
 
