@@ -79,7 +79,8 @@ public class FilterProgram {
             BattleWin temp = new BattleWin();
             long totalBattles =0 , totalVictories =0;
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
-            String battleTime = oldWinList.stream()
+          String battleTime
+                  = oldWinList.stream()
                     .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
                     .findFirst().orElse(new BattleWin()).getBattleTime();
 
@@ -87,15 +88,17 @@ public class FilterProgram {
 
                 if(l.getBattleTime().equals(battleTime))
                     break;
-                System.out.println("Mode: " + l.getBattle().getMode() + " Player: "+p.getName());
+
                 //If condition is plainly looking for victories whether it be 3v3 or solo, duo etc.
                 if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory") ||
-                        l.getBattle().getRank() < 5 &&  !l.getBattle().getMode().equals("duoShowdown") ||
-                        l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")
+                      l.getBattle().getRank()!=0 && l.getBattle().getRank() < 5 &&  !l.getBattle().getMode().equals("duoShowdown") ||
+                        l.getBattle().getRank()!=0 && l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")
                 ){
 
                     //The gameMode map looks like [ mode : gameModeWin ]. Over here I update the wins
                     if (!GameModes.ignoreModes.contains(l.getBattle().getMode())) {
+
+
                         temp.getWins().get(l.getBattle().getMode()).incrementVictories();
                         totalVictories++;
                     }

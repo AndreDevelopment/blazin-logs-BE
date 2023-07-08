@@ -61,9 +61,12 @@ public class BattleWinService {
                     GameModeWin temp = bw.getWins().get(key);
                     temp.addVictories(oldRecord.getWins().get(key).getTotalVictories());
                     temp.addTotalBattle(oldRecord.getWins().get(key).getTotalBattles());
-                    temp.setWinRate((double)temp.getTotalVictories()/temp.getTotalBattles());
+                    temp.setWinRate((double)temp.getTotalVictories() / temp.getTotalBattles());
 
                 }
+                bw.setTotalVictories(bw.getTotalVictories()+oldRecord.getTotalVictories());
+                bw.setTotalBattles(bw.getTotalBattles()+oldRecord.getTotalBattles());
+
             }
             bw.setWinRate((double)bw.getTotalVictories()/bw.getTotalBattles());
             modifiedRecords.add(bw);
