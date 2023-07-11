@@ -5,6 +5,7 @@ package com.BrawlService.Business;
 import com.BrawlService.Entity.BrawlEntity.Log;
 import com.BrawlService.Entity.BrawlEntity.Player;
 import com.BrawlService.Entity.StatEntity.BattleWin;
+import com.BrawlService.Entity.StatEntity.GameModes;
 import com.BrawlService.Service.BrawlRequest;
 
 
@@ -67,6 +68,7 @@ public class FilterProgram {
      *         clubList - List of Players belonging to a club
      *         oldWinList - Data from the DB facilitate updating information
      * Returns: BattleWin list with new info filtered from recent battle logs
+
      * */
     private ArrayList<BattleWin> filterWins(ConcurrentHashMap<String,ArrayList<Log>> playerLogs, ArrayList<Player> clubList,List<BattleWin>oldWinList){
        ArrayList<BattleWin>playerVictories = new ArrayList<>();
@@ -74,10 +76,11 @@ public class FilterProgram {
        //Loop through each players log, count up their wins and store those stats
         for (Player p: clubList) {
 
-            long wins3v3 =0, wins1v1=0,winsSolo=0,totalBattles=0,winsDuo=0;
-
+            BattleWin temp = new BattleWin();
+            long totalBattles =0 , totalVictories =0;
             //Find the first player that matches the player P, fetch their most recent battle time (Could be null if player has not been previous saved to DB)
-            String battleTime = oldWinList.stream()
+          String battleTime
+                  = oldWinList.stream()
                     .filter(battleWin -> battleWin.getPlayer().getTag().equals(p.getTag()))
                     .findFirst().orElse(new BattleWin()).getBattleTime();
 
@@ -86,26 +89,35 @@ public class FilterProgram {
                 if(l.getBattleTime().equals(battleTime))
                     break;
 
-                if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory")){
-                    if (l.getBattle().getMode().equals("duels")){
-                        wins1v1 ++;
-                    }else {
-                        wins3v3++;
+                //If condition is plainly looking for victories whether it be 3v3 or solo, duo etc.
+                if (l.getBattle().getResult()!=null&& l.getBattle().getResult().equals("victory") ||
+                      l.getBattle().getRank()!=0 && l.getBattle().getRank() < 5 &&  !l.getBattle().getMode().equals("duoShowdown") ||
+                        l.getBattle().getRank()!=0 && l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")
+                ){
+
+                    //The gameMode map looks like [ mode : gameModeWin ]. Over here I update the wins
+                    if (!GameModes.ignoreModes.contains(l.getBattle().getMode())) {
+
+
+                        temp.getWins().get(l.getBattle().getMode()).incrementVictories();
+                        totalVictories++;
                     }
                 }
-                if (l.getBattle().getRank() < 5 &&l.getBattle().getMode().equals("soloShowdown")){
-                    winsSolo++;
-                }
-                if (l.getBattle().getRank() < 3 &&l.getBattle().getMode().equals("duoShowdown")){
-                    winsDuo++;
-                }
-                totalBattles++;
-            }
+                //Here I am updated the total count
 
-            battleTime = playerLogs.get(p.getName()).get(0).getBattleTime();
+                if (!GameModes.ignoreModes.contains(l.getBattle().getMode())) {
+                    temp.getWins().get(l.getBattle().getMode()).incrementTotalBattles();
+                    totalBattles++;
+                }
+            }// end of for
 
+
+            temp.setPlayer(p);
+            temp.setBattleTime(playerLogs.get(p.getName()).get(0).getBattleTime());
+            temp.setTotalBattles(totalBattles);
+            temp.setTotalVictories(totalVictories);
             //An ArrayList containing different win stats
-            playerVictories.add(new BattleWin(p, new ArrayList<>(List.of(wins3v3, winsSolo, wins1v1,winsDuo,totalBattles)),battleTime));
+            playerVictories.add(temp);
 
         }
         return  playerVictories;
@@ -115,22 +127,19 @@ public class FilterProgram {
      * Params: playerVictories - contains recent win information
      * Returns: Printed information in the console
      * */
-    public  void printVictoryResults(ArrayList<BattleWin> playerVictories){
-        //25 is the max amount of battles pulled per Player
-        DecimalFormat format = new DecimalFormat("#.##");
-        playerVictories.forEach((win)->{
-
-            System.out.println(Colour.ANSI_BLUE + win.getPlayer().getName()
-                    + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
-                    + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
-                    + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
-                    + Colour.ANSI_RESET+ " | Duos: " + win.getWins().get(3)
-                    + Colour.ANSI_RED + " | Total Battles: " + win.getWins().get(4)
-                    + Colour.ANSI_YELLOW + " | W/R: " + format.format(win.getWinRate()));
-        });
-
-        //System.out.println(Colour.ANSI_RED + "Total battles played (per player): " +25+Colour.ANSI_RESET);
-    }
+//    public  void printVictoryResults(ArrayList<BattleWin> playerVictories){
+//        //25 is the max amount of battles pulled per Player
+//        DecimalFormat format = new DecimalFormat("#.##");
+//        playerVictories.forEach((win)-> System.out.println(Colour.ANSI_BLUE + win.getPlayer().getName()
+//                + Colour.ANSI_PURPLE + " | 3v3 victories: " + win.getWins().get(0)
+//                + Colour.ANSI_GREEN + " | Solo victories: " + win.getWins().get(1)
+//                + Colour.ANSI_CYAN + " | Duels: " + win.getWins().get(2)
+//                + Colour.ANSI_RESET+ " | Duos: " + win.getWins().get(3)
+//                + Colour.ANSI_RED + " | Total Battles: " + win.getWins().get(4)
+//                + Colour.ANSI_YELLOW + " | W/R: " + format.format(win.getWinRate())));
+//
+//        //System.out.println(Colour.ANSI_RED + "Total battles played (per player): " +25+Colour.ANSI_RESET);
+//    }
     /*
      * Params: executorService - contains threads to be run
      * Returns: Shutdown of all dead threads

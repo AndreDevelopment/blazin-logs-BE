@@ -1,14 +1,17 @@
 package com.BrawlService.Service;
 
 import com.BrawlService.Entity.StatEntity.BattleWin;
+import com.BrawlService.Entity.StatEntity.GameModeWin;
 import com.BrawlService.Repository.BattleWinRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /*
@@ -51,13 +54,21 @@ public class BattleWinService {
             BattleWin oldRecord = findPlayerBattleWin(bw.getPlayer().getTag());
 
             if(oldRecord!=null){
-                ArrayList<Long> wins = bw.getWins();
+                Map<String, GameModeWin> wins = bw.getWins();
                 bw.set_id(oldRecord.get_id());
-                for (int i = 0; i < wins.size(); i++) {
-                    wins.set(i, wins.get(i) + oldRecord.getWins().get(i));
+                for (String key: wins.keySet()) {
+                    //Updating GameMode specific W/R, victories and total battles
+                    GameModeWin temp = bw.getWins().get(key);
+                    temp.addVictories(oldRecord.getWins().get(key).getTotalVictories());
+                    temp.addTotalBattle(oldRecord.getWins().get(key).getTotalBattles());
+                    temp.setWinRate((double)temp.getTotalVictories() / temp.getTotalBattles());
+
                 }
+                bw.setTotalVictories(bw.getTotalVictories()+oldRecord.getTotalVictories());
+                bw.setTotalBattles(bw.getTotalBattles()+oldRecord.getTotalBattles());
+
             }
-            bw.setWinRate(calculateWinRate(bw.getWins()));
+            bw.setWinRate((double)bw.getTotalVictories()/bw.getTotalBattles());
             modifiedRecords.add(bw);
         }
 
