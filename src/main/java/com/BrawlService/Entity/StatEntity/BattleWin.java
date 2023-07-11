@@ -18,7 +18,7 @@ import java.util.Map;
 * */
 @Data
 @AllArgsConstructor
-@Document(collection = "ClubBattleWinV2")
+@Document(collection = "ClubBattleWin")
 public class BattleWin {
     @Id
     private String _id;
