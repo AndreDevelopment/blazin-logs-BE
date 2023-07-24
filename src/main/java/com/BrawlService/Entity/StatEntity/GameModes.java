@@ -13,7 +13,7 @@ public class GameModes {
             "brawlBall", "hotZone","bounty","knockout",
             "takedown","wipeout","duels","heist","volleyBrawl");
 
-    public static final List<String> ignoreModes = List.of("bigGame","roboRumble","payload");
+    public static final List<String> ignoreModes = List.of("bigGame","roboRumble","payload","bossFight");
 
 
 }
